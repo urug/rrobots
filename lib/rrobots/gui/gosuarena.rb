@@ -2,9 +2,9 @@ require 'gosu'
 
 BIG_FONT = 'Courier New'
 SMALL_FONT = 'Courier New'
-COLORS = ['white', 'blue', 'yellow', 'red', 'lime'] 
+COLORS = ['white', 'blue', 'yellow', 'red', 'lime']
 FONT_COLORS = [0xffffffff, 0xff0008ff, 0xfffff706, 0xffff0613, 0xff00ff04]
-    
+
 GosuRobot = Struct.new(:body, :gun, :radar, :speech, :info, :status, :color, :font_color)
 
 module ZOrder
@@ -14,7 +14,7 @@ end
 class RRobotsGameWindow < Gosu::Window
   attr_reader :battlefield, :xres, :yres
   attr_accessor :on_game_over_handlers, :boom, :robots, :bullets, :explosions
-  
+
   def initialize(battlefield, xres, yres)
     super(xres, yres, false, 16)
     self.caption = 'RRobots'
@@ -32,14 +32,14 @@ class RRobotsGameWindow < Gosu::Window
   def on_game_over(&block)
     @on_game_over_handlers << block
   end
-  
+
   def init_window
     @boom = (0..14).map do |i|
-      Gosu::Image.new(self, File.join(File.dirname(__FILE__),"../images/explosion#{i.to_s.rjust(2, '0')}.bmp"))
+      Gosu::Image.new(File.join(File.dirname(__FILE__),"../images/explosion#{i.to_s.rjust(2, '0')}.bmp"))
     end
-    @bullet_image = Gosu::Image.new(self, File.join(File.dirname(__FILE__),"../images/bullet.png"))
+    @bullet_image = Gosu::Image.new(File.join(File.dirname(__FILE__),"../images/bullet.png"))
   end
-  
+
   def init_simulation
     @robots, @bullets, @explosions = {}, {}, {}
   end
@@ -58,7 +58,7 @@ class RRobotsGameWindow < Gosu::Window
     draw_bullets
     draw_explosions
   end
-  
+
   def simulate(ticks=1)
     @explosions.reject!{|e,tko| e.dead }
     @bullets.reject!{|b,tko| b.dead }
@@ -80,16 +80,16 @@ class RRobotsGameWindow < Gosu::Window
       @battlefield.tick
     end
   end
-  
+
   def draw_robots
     @battlefield.robots.each_with_index do |ai, i|
       next if ai.dead
       col = COLORS[i % COLORS.size]
       font_col = FONT_COLORS[i % FONT_COLORS.size]
       @robots[ai] ||= GosuRobot.new(
-        Gosu::Image.new(self, File.join(File.dirname(__FILE__),"../images/#{col}_body000.bmp")),
-        Gosu::Image.new(self, File.join(File.dirname(__FILE__),"../images/#{col}_turret000.bmp")),
-        Gosu::Image.new(self, File.join(File.dirname(__FILE__),"../images/#{col}_radar000.bmp")),
+        Gosu::Image.new(File.join(File.dirname(__FILE__),"../images/#{col}_body000.bmp")),
+        Gosu::Image.new(File.join(File.dirname(__FILE__),"../images/#{col}_turret000.bmp")),
+        Gosu::Image.new(File.join(File.dirname(__FILE__),"../images/#{col}_radar000.bmp")),
         @small_font,
         @small_font,
         @small_font,
@@ -99,7 +99,7 @@ class RRobotsGameWindow < Gosu::Window
       @robots[ai].body.draw_rot(ai.x / 2, ai.y / 2, ZOrder::Robot, (-(ai.heading-90)) % 360)
       @robots[ai].gun.draw_rot(ai.x / 2, ai.y / 2, ZOrder::Robot, (-(ai.gun_heading-90)) % 360)
       @robots[ai].radar.draw_rot(ai.x / 2, ai.y / 2, ZOrder::Robot, (-(ai.radar_heading-90)) % 360)
-      
+
       @robots[ai].speech.draw_rel(ai.speech.to_s, ai.x / 2, ai.y / 2 - 40, ZOrder::UI, 0.5, 0.5, 1, 1, font_col)
       @robots[ai].info.draw_rel("#{ai.name}", ai.x / 2, ai.y / 2 + 30, ZOrder::UI, 0.5, 0.5, 1, 1, font_col)
       @robots[ai].info.draw_rel("#{ai.energy.to_i}", ai.x / 2, ai.y / 2 + 50, ZOrder::UI, 0.5, 0.5, 1, 1, font_col)
